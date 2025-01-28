@@ -20,27 +20,37 @@ ORDER BY trip_distance DESC
 LIMIT 1;
 --------------------------------------------------------------------------------
 SELECT 
-    CONCAT(z."Borough", ' / ', z."Zone") AS pickup_location,
-    COUNT(*) AS trip_count
+    zpu."Zone" AS pickup_zone,
+    SUM(g."total_amount") AS total_revenue
 FROM 
     green_taxi_trips g
 JOIN 
-    zones z ON g."PULocationID" = z."LocationID"
+    zones zpu ON g."PULocationID" = zpu."LocationID"
+WHERE 
+    DATE(g."lpep_pickup_datetime") = '2019-10-18'
 GROUP BY 
-    pickup_location
+    zpu."Zone"
+HAVING 
+    SUM(g."total_amount") > 13000
 ORDER BY 
-    trip_count DESC
-LIMIT 5;  -- You can adjust the number of results you want
+    total_revenue DESC
+LIMIT 3;
 --------------------------------------------------------------------------------
 SELECT 
-    CONCAT(z."Borough", ' / ', z."Zone") AS pickup_location,
+    zdo."Zone" AS dropoff_zone,
     MAX(g."tip_amount") AS largest_tip
 FROM 
     green_taxi_trips g
 JOIN 
-    zones z ON g."PULocationID" = z."LocationID"
+    zones zpu ON g."PULocationID" = zpu."LocationID"
+JOIN 
+    zones zdo ON g."DOLocationID" = zdo."LocationID"
+WHERE 
+    zpu."Zone" = 'East Harlem North'
+    AND DATE_TRUNC('month', g."lpep_pickup_datetime") = '2019-10-01'
 GROUP BY 
-    pickup_location
+    zdo."Zone"
 ORDER BY 
     largest_tip DESC
-LIMIT 5;
+LIMIT 1;
+
