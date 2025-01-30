@@ -1,16 +1,27 @@
+-- SELECT 
+--     CASE 
+--         WHEN trip_distance <= 1 THEN 'Up to 1 mile'
+--         WHEN trip_distance > 1 AND trip_distance <= 3 THEN '1-3 miles'
+--         WHEN trip_distance > 3 AND trip_distance <= 7 THEN '3-7 miles'
+--         WHEN trip_distance > 7 AND trip_distance <= 10 THEN '7-10 miles'
+--         WHEN trip_distance > 10 THEN 'Over 10 miles'
+--         ELSE 'Unknown'
+--     END AS trip_distance_segment,
+--     COUNT(*) AS trip_count
+-- FROM green_taxi_trips
+-- GROUP BY trip_distance_segment
+-- ORDER BY trip_distance_segment;
+
 SELECT 
-    CASE 
-        WHEN trip_distance <= 1 THEN 'Up to 1 mile'
-        WHEN trip_distance > 1 AND trip_distance <= 3 THEN '1-3 miles'
-        WHEN trip_distance > 3 AND trip_distance <= 7 THEN '3-7 miles'
-        WHEN trip_distance > 7 AND trip_distance <= 10 THEN '7-10 miles'
-        WHEN trip_distance > 10 THEN 'Over 10 miles'
-        ELSE 'Unknown'
-    END AS trip_distance_segment,
-    COUNT(*) AS trip_count
+    SUM(CASE WHEN trip_distance <= 1 THEN 1 ELSE 0 END) AS up_to_1_mile,
+    SUM(CASE WHEN trip_distance > 1 AND trip_distance <= 3 THEN 1 ELSE 0 END) AS between_1_and_3_miles,
+    SUM(CASE WHEN trip_distance > 3 AND trip_distance <= 7 THEN 1 ELSE 0 END) AS between_3_and_7_miles,
+    SUM(CASE WHEN trip_distance > 7 AND trip_distance <= 10 THEN 1 ELSE 0 END) AS between_7_and_10_miles,
+    SUM(CASE WHEN trip_distance > 10 THEN 1 ELSE 0 END) AS over_10_miles
 FROM green_taxi_trips
-GROUP BY trip_distance_segment
-ORDER BY trip_distance_segment;
+WHERE lpep_pickup_datetime >= '2019-10-01' 
+AND lpep_pickup_datetime < '2019-11-01';
+
 --------------------------------------------------------------------------------
 SELECT 
     DATE(lpep_pickup_datetime) AS trip_date,
